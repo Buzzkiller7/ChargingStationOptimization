@@ -1,0 +1,50 @@
+城市: 广州 Guangzhou  (key=guangzhou)
+轨迹文件: Taxi_2019_10_14_admin_4401.parquet
+============================================================
+【站点供给——全部站点口径】
+  不按建成日过滤，也不按充电枪数量>0过滤；仅剔除缺坐标或越出城市 bbox 的记录。
+  原始站点表: 3191 行
+  实际用于优化/绘图: 3191 站
+    缺坐标: 0 | 越界: 0
+    零枪站: 442（保留）
+    快充枪: 43201 | 慢充枪: 8198 | 合计: 51399
+
+【需求与基线】
+  蒙特卡洛事件均值: 3110.59
+  基线 M0 (期望需求): 5047.521375958691
+  抛锚率: 0.0
+  最近站均距(km): 1.6226893856016675
+
+【S2 减站边际效应审查】
+  单站零/近零边际: 1873 (58.7%)
+  正边际站: 1318
+  逐批减站 M/M0:
+  减1%站: 减站 32, M/M0=1.0000, M增幅=0.00%
+  减2%站: 减站 64, M/M0=1.0000, M增幅=0.00%
+  减5%站: 减站 160, M/M0=1.0012, M增幅=0.12%
+  减10%站: 减站 320, M/M0=1.0012, M增幅=0.12%
+  移除全部初始零边际站: 减站 1873, M/M0=1.0262, M增幅=2.62%
+
+【运行日志】
+  [init] precompute: {'city': 'guangzhou', 'rows': 13196639, 'vehicles': 33406, 'stations': 3191}
+  [s1  ] GPS 记录 13,196,639 | 车辆 33,406
+  [s1  ] 全部站点口径 3191 -> 3191 (缺坐标 0 | 越界 0 | 零枪保留 442)
+  [fig ] 01_trajectory_vs_stations.png
+  [s1  ] 行政区分布 11 个二级分区 | 行政区边界：按城市名 '广州' 解析为 440100，使用 admin_440100_full.geojson。 站点分区：GeoJSON 空间匹配。
+  [fig ] 02_district_shares.png
+  [fig ] 03_gps_points_per_vehicle.png
+  [fig ] 04_speed_distribution.png
+  [s2  ] 单车累计耗电中位 12.4 kWh
+  [fig ] 05_soc_traces_grid.png
+  [fig ] 06_soc_trace_busiest.png
+  [fig ] 07_naive_demand_surface.png
+  [s2  ] MC 100 次: 事件 3111±32 | 需求块 1407±21 | 主网格 3317
+  [fig ] 08_lowsoc_events_per_draw.png
+  [fig ] 09_mc_demand_stability.png
+  [s3  ] 站点 3191 | 需求格 3317 | M0(exp)=5048 抛锚率=0.0000
+  [fig ] 10_baseline_demand_vs_stations.png
+  [fig ] 11_s1_greedy_add_curve.png
+  [fig ] 12_s2_redundancy_load.png
+  [fig ] 13_s2_removal_marginal_audit.png
+  [s3  ] S2 减站审查: 零/近零边际 1873/3191，减站曲线已重算 M
+  [fig ] 14_s3_add_vs_swap.png
