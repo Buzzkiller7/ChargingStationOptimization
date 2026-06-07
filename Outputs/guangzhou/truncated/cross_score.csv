@@ -1,0 +1,6 @@
+﻿布局,优化口径,城市,口径,M_old_km,空间置换_min,时间排队_min
+基线,-,guangzhou,truncated,14922.4,1597553.0,716578.3
+S1只增,空间置换,guangzhou,truncated,10895.1,1354673.0,437840.0
+S3等量调配,空间置换,guangzhou,truncated,11174.4,1339514.1,338625.5
+S1只增,时间排队,guangzhou,truncated,10895.1,1354673.0,437840.0
+S3等量调配,时间排队,guangzhou,truncated,10895.1,1796862.8,437840.0
