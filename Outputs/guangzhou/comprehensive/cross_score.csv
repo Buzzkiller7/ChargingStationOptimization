@@ -1,6 +1,0 @@
-﻿布局,优化口径,城市,口径,M_old_km,空间置换_min,时间排队_min
-基线,-,guangzhou,comprehensive,6854.0,2243939.5,146901.8
-S1只增,空间置换,guangzhou,comprehensive,3860.2,1933721.1,52699.1
-S3等量调配,空间置换,guangzhou,comprehensive,3860.2,1985782.6,52699.1
-S1只增,时间排队,guangzhou,comprehensive,3860.2,1933721.0,52699.1
-S3等量调配,时间排队,guangzhou,comprehensive,3860.2,2592900.8,52699.1

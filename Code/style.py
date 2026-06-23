@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
 
 # Nature 子刊配色（色盲友好、低饱和）
 C = dict(blue="#3B6FB6", red="#C0392B", green="#2E8B6E", orange="#E08214",
@@ -101,8 +102,109 @@ def draw_admin(ax, cache_dir=None, adcode=None, color="#8A93A0", lw=0.5, label_d
     return bool(rings)
 
 
+def draw_network(ax, cache_dir=None, city=None, color="#c9d2db", lw=0.25, alpha=0.55, max_edges=None):
+    """叠加 OSMnx 路网边（WGS84 经纬度，淡线）作为“需求映射到路网节点”图的底图。
+    需已缓存 data/_graph_<city>.graphml（首次由 cso 联网构建）；未装 osmnx / 无缓存时静默跳过返回 False。"""
+    try:
+        import osmnx as ox
+    except Exception:
+        return False
+    if city is None or cache_dir is None:
+        try:
+            import cso
+            city = city or cso.CITY
+            cache_dir = cache_dir or cso.DATA
+        except Exception:
+            cache_dir = cache_dir or (Path(__file__).resolve().parent.parent / "data")
+    fp = Path(cache_dir) / f"_graph_{city}.graphml"
+    if not fp.exists():
+        return False
+    try:
+        G = ox.load_graphml(fp)
+        n = 0
+        for u, v, d in G.edges(data=True):
+            geom = d.get("geometry")
+            if geom is not None:
+                xs, ys = geom.xy
+                ax.plot(list(xs), list(ys), color=color, lw=lw, alpha=alpha, zorder=1, solid_capstyle="round")
+            else:
+                ax.plot([G.nodes[u]["x"], G.nodes[v]["x"]], [G.nodes[u]["y"], G.nodes[v]["y"]],
+                        color=color, lw=lw, alpha=alpha, zorder=1)
+            n += 1
+            if max_edges is not None and n > max_edges:
+                break
+        return True
+    except Exception:
+        return False
+
+
+def _graph_node_key(n):
+    """GraphML 读回来的节点 id 可能是 str 或 int；统一成可比对的字符串。"""
+    try:
+        return str(int(n))
+    except Exception:
+        return str(n)
+
+
+def draw_network_demand(ax, node_ids, weights, cache_dir=None, city=None, cmap=None, norm=None,
+                        base_color="#E2E7EE", base_lw=0.18, demand_lw=0.75,
+                        base_alpha=0.34, demand_alpha=0.92, max_edges=None):
+    """按路网节点需求给路段着色。
+    需求面已经 snap 到路网节点，因此不再画需求散点；每条边取两端节点需求的较大值作为路段颜色。
+    返回可用于 colorbar 的 LineCollection；失败或无缓存时返回 None。"""
+    try:
+        import osmnx as ox
+    except Exception:
+        return None
+    if city is None or cache_dir is None:
+        try:
+            import cso
+            city = city or cso.CITY
+            cache_dir = cache_dir or cso.DATA
+        except Exception:
+            cache_dir = cache_dir or (Path(__file__).resolve().parent.parent / "data")
+    fp = Path(cache_dir) / f"_graph_{city}.graphml"
+    if not fp.exists():
+        return None
+    node_ids = np.asarray(node_ids)
+    weights = np.asarray(weights, float)
+    demand = {_graph_node_key(n): float(w) for n, w in zip(node_ids, weights)
+              if np.isfinite(w) and w > 0}
+    try:
+        G = ox.load_graphml(fp)
+        base_segments, demand_segments, demand_values = [], [], []
+        for n, (u, v, d) in enumerate(G.edges(data=True)):
+            geom = d.get("geometry")
+            if geom is not None:
+                xs, ys = geom.xy
+                seg = np.column_stack([np.asarray(xs, float), np.asarray(ys, float)])
+            else:
+                seg = np.array([[float(G.nodes[u]["x"]), float(G.nodes[u]["y"])],
+                                [float(G.nodes[v]["x"]), float(G.nodes[v]["y"])]])
+            val = max(demand.get(_graph_node_key(u), 0.0), demand.get(_graph_node_key(v), 0.0))
+            if val > 0:
+                demand_segments.append(seg); demand_values.append(val)
+            else:
+                base_segments.append(seg)
+            if max_edges is not None and n + 1 >= max_edges:
+                break
+        if base_segments:
+            ax.add_collection(LineCollection(base_segments, colors=base_color, linewidths=base_lw,
+                                             alpha=base_alpha, zorder=1, capstyle="round"))
+        if not demand_segments:
+            ax.autoscale_view()
+            return None
+        lc = LineCollection(demand_segments, cmap=plt.get_cmap(cmap or SEQ), norm=norm,
+                            linewidths=demand_lw, alpha=demand_alpha, zorder=2, capstyle="round")
+        lc.set_array(np.asarray(demand_values, float))
+        ax.add_collection(lc)
+        ax.autoscale_view()
+        return lc
+    except Exception:
+        return None
+
+
 def savefig(fig, path):
-    """统一存盘：600dpi PNG + 同名矢量 PDF（矢量图任意放大不糊）。"""
+    """统一存盘：只存 600dpi PNG（按当前需求不再输出 PDF）。"""
     path = Path(path)
     fig.savefig(path, dpi=600, bbox_inches="tight")
-    fig.savefig(path.with_suffix(".pdf"), bbox_inches="tight")

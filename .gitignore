@@ -1,3 +1,36 @@
+# 注意：.gitignore 不支持行内注释，模式必须独占一行，注释只能单独成行。
+
+# 大体积原始数据与缓存（不入库，可由原始数据/联网重建）
+# 多日轨迹原始数据
 *.parquet
+# 逐日轨迹分段缓存 _segments_cache_*.npz
 *.npz
+# OSMnx 路网缓存 _graph_<city>.graphml（可联网重建）
+*.graphml
+
+# 历史 PDF 图件（现已只出 PNG）
 *.pdf
+
+# 生成产物（run_all / notebook 可重新生成）
+Outputs/
+_smoke/
+**/_smoke/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# 人工备份（带时间戳的 .bak / *_backup_*）
+*.bak
+*.bak_*
+*_backup_*.py
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
