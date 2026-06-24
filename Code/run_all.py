@@ -317,7 +317,7 @@ def main():
     city_dir.mkdir(parents=True, exist_ok=True)
     norm = _demand_norm(w)
     fig, ax = plt.subplots(figsize=style.mm(150, 150))
-    lc0 = cso.plot_demand_network(ax, D, norm=norm, title=f"{cso.CITY_NAME} 固定低电量需求面（路段着色）")
+    lc0 = cso.plot_demand_network(ax, D, norm=norm, title=f"{cso.CITY_NAME} 固定低电量需求面")
     if lc0 is not None:
         fig.colorbar(lc0, ax=ax, fraction=0.04, pad=0.02).set_label("期望低电量需求 (次/天/节点)", fontsize=7)
     _save(fig, city_dir / "fig_demand_network.png")
@@ -343,7 +343,7 @@ def main():
         ax.bar(x, sdf["M_reach"], bottom=sdf["M_access"] + sdf["M_crowd"], color=style.C["red"], label="M_reach")
         ax.set_xticks(x); ax.set_xticklabels([str(y) for y in yrs])
         ax.set_ylabel("需求·km"); ax.set_xlabel("年份")
-        ax.set_title(f"{cso.CITY_NAME} 逐年现状错配分解（每年一根柱）"); ax.legend(loc="best")
+        ax.set_title(f"{cso.CITY_NAME} 逐年现状错配分解"); ax.legend(loc="best")
         ax2 = ax.twinx()
         ax2.plot(x, sdf["可达覆盖率"], "-o", color=style.C["green"], lw=1.2, ms=3)
         ax2.set_ylabel("可达覆盖率(原生)", color=style.C["green"]); ax2.set_ylim(0, 1.02)

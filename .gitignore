@@ -7,12 +7,10 @@
 *.npz
 # OSMnx 路网缓存 _graph_<city>.graphml（可联网重建）
 *.graphml
-
-# 历史 PDF 图件（现已只出 PNG）
 *.pdf
 
 # 生成产物（run_all / notebook 可重新生成）
-Outputs/
+# Outputs/
 _smoke/
 **/_smoke/
 
